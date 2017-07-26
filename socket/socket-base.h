@@ -13,7 +13,7 @@ public:
 public:
 	virtual bool Open(void);
 	virtual bool Close(void);
-	virtual bool Block(bool b);
+	virtual bool Block(bool b);//b=1×èÈû£¬b=0·Ç×èÈû
 public:
 	static bool Startup(void);
 	static void Cleanup(void);

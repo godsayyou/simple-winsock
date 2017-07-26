@@ -31,7 +31,7 @@ bool SocketBase::Close(void)
 }
 bool SocketBase::Block(bool b)
 {
-	unsigned long mode = b;
+	unsigned long mode = !b;
 	return (ioctlsocket(fd, FIONBIO, &mode) != SOCKET_ERROR);
 }
 bool SocketBase::Startup(void)
