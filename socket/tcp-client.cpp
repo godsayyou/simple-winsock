@@ -19,6 +19,10 @@ bool TcpClient::Connect(const char *ip, int port)
 	{
 		return false;
 	}
+	if( Open() == false )
+	{
+		return false;
+	}
     sockaddr_in address;
 
     address.sin_family = AF_INET;
