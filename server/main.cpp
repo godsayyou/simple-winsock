@@ -11,20 +11,24 @@ int main(void)
 	if( server.Bind("127.0.0.1", 8888) == false )
 	{
 		printf("bind@0.0.0.0:8888 failed\n");
+		perror("bind");
 		return getchar();
 	}
+	printf("bind@0.0.0.0:8888\n");
 	if( server.Listen(5) == false )
 	{
 		printf("Listen@1 falied\n");
 		fflush(stdout);
 		return getchar();
 	}
+	printf("Listen@1\n");
 	if( server.Accept(worker) == false)
 	{
 		printf("Accept@worker failed\n");
 		fflush(stdout);
 		return getchar();
 	}
+	printf("Accept@worker\n");
 	worker.Block(false);
 	while(1)
 	{
@@ -37,7 +41,7 @@ int main(void)
 		}
 		worker.Send("this is server", 17);
 		//getchar();
-		Sleep(1000);
+		Sleep(10);
 	}
 
 	return 0;

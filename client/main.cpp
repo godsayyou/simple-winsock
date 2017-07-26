@@ -7,7 +7,7 @@ int main(void)
 
 	if( client.Connect("127.0.0.1", 8888) == false )
 	{
-		printf("connect failed!\n");
+		perror("connect failed!\n");
 	}
 	client.Block(true);
 

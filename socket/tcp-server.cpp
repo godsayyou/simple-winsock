@@ -4,44 +4,16 @@
 #include <io.h>
 #include "tcp-server.h"
 
-#pragma comment (lib, "Ws2_32.lib")
 
 TcpServer::TcpServer(void)
 {
-	Init();
 	listening = false;
-	fd = INVALID_SOCKET;
 }
 TcpServer::~TcpServer(void)
 {
-	Cleanup();
-	closesocket(fd);
+	listening = false;
 }
-
-void TcpServer::Init(void)
-{
-	WSADATA wsaData;
-
-	if ( WSAStartup(MAKEWORD(2, 2), &wsaData) != NO_ERROR) 
-	{
-		wprintf(L"WSAStartup failed with error: %ld\n", WSAGetLastError());
-	}
-}
-void TcpServer::Cleanup(void)
-{
-	WSACleanup();
-}
-
-bool TcpServer::Block(bool block)
-{
-	unsigned long mode = block;
-	return (ioctlsocket(fd, FIONBIO, &mode) != SOCKET_ERROR);
-}
-bool TcpServer::ReuseAddress(bool reuse)
-{
-	return (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, (const char*)&reuse, sizeof(reuse)) != SOCKET_ERROR);
-}
-bool TcpServer::OpenSocket(void)
+bool TcpServer::Open(void)
 {
 	if( INVALID_SOCKET == fd )
 	{
@@ -49,13 +21,24 @@ bool TcpServer::OpenSocket(void)
 	}
 	return (INVALID_SOCKET != fd);
 }
+bool TcpServer::Close(void)
+{
+	closesocket(fd);
+	fd = INVALID_SOCKET;
+	listening = false;
+	return true;
+}
+bool TcpServer::ReuseAddress(bool reuse)
+{
+	return (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, (const char*)&reuse, sizeof(reuse)) != SOCKET_ERROR);
+}
 bool TcpServer::Bind(const char *ip, int port)
 {
 	if( 0 == ip )
 	{
 		return false;
 	}
-	if( OpenSocket() == false )
+	if( Open() == false )
 	{
 		return false;
 	}
@@ -89,14 +72,6 @@ bool TcpServer::Accept(TcpServer& worker)
 	worker.fd = accept(fd,(SOCKADDR*)&address, &len);
 	return (INVALID_SOCKET != worker.fd);
 }
-int TcpServer::Send(char *buf, int len)
-{
-	if( 0 == buf || len < 1 || listening )
-	{
-		return -1;
-	}
-	return send(fd, buf, len, 0);
-}
 int TcpServer::Recv(char *buf, int len)
 {
 	if( 0 == buf || len < 1 || listening )
@@ -104,4 +79,12 @@ int TcpServer::Recv(char *buf, int len)
 		return -1;
 	}
 	return recv(fd, buf, len, 0);
+}
+int TcpServer::Send(const char *buf, int len)
+{
+	if( 0 == buf || len < 1 || listening )
+	{
+		return -1;
+	}
+	return send(fd, buf, len, 0);
 }
